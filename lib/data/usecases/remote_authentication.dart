@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../domain/usecases/authentication.dart';
 import '../../domain/helpers/helpers.dart';
+import '../../domain/entities/entities.dart';
 
 import '../http/http.dart';
 
@@ -14,12 +15,23 @@ class RemoteAuthentication {
     @required this.url,
   });
 
-  Future<void> auth(AuthenticationParams params) async {
+  // ignore: missing_return
+  Future<AccountEntity> auth (AuthenticationParams params) async {
     final body = RemoteAuthenticationParams.fromAuthenticationParams(params).toJson();
     try{
-      await httpClient.request(url: url, method: "post", body: body);
-    } on HttpError {
-      throw DomainError.unexpected;
+      final response = await httpClient.request(url: url, method: "post", body: body);
+      return AccountEntity.fromJson(response);
+    } on HttpError catch(error){
+      switch(error){
+        case HttpError.badRequest:
+        case HttpError.notFound:
+        case HttpError.serverError:
+          throw DomainError.unexpected;
+          break;
+        case HttpError.unauthorized:
+          return throw DomainError.invalidCredentials;
+          break;
+      }
     }
   }
 }
