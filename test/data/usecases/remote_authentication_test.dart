@@ -16,6 +16,24 @@ void main() {
   RemoteAuthentication systemUniteTest;
   AuthenticationParams params;
 
+  PostExpectation mockRequest() => when(
+        httpClient.request(
+          url: anyNamed('url'),
+          method: anyNamed('method'),
+          body: anyNamed("body"),
+        ),
+      );
+
+  void httpData(Map<String, dynamic> data) {
+    mockRequest().thenAnswer(
+      (_) async => data,
+    );
+  }
+
+  void httpError(HttpError error) {
+    mockRequest().thenThrow(error);
+  }
+
   setUp(() {
     httpClient = HttpClientSpy();
     url = faker.internet.httpUrl();
@@ -25,19 +43,12 @@ void main() {
       password: faker.internet.password(),
     );
   });
+
   test("should call httpClient with correct url", () async {
-    when(
-      httpClient.request(
-        url: anyNamed('url'),
-        method: anyNamed('method'),
-        body: anyNamed("body"),
-      ),
-    ).thenAnswer(
-          (_) async => {
-        "accessToken": faker.guid.guid(),
-        "name": faker.person.name(),
-      },
-    );
+    httpData({
+      "accessToken": faker.guid.guid(),
+      "name": faker.person.name(),
+    });
 
     await systemUniteTest.auth(params);
 
@@ -56,13 +67,7 @@ void main() {
   test(
     "should throw UnexpectedError if httpclient return 400",
     () async {
-      when(
-        httpClient.request(
-          url: anyNamed('url'),
-          method: anyNamed('method'),
-          body: anyNamed("body"),
-        ),
-      ).thenThrow(HttpError.badRequest);
+      httpError(HttpError.badRequest);
 
       final future = systemUniteTest.auth(params);
 
@@ -73,13 +78,7 @@ void main() {
   test(
     "should throw UnexpectedError if httpclient return 404",
     () async {
-      when(
-        httpClient.request(
-          url: anyNamed('url'),
-          method: anyNamed('method'),
-          body: anyNamed("body"),
-        ),
-      ).thenThrow(HttpError.notFound);
+      httpError(HttpError.notFound);
 
       final future = systemUniteTest.auth(params);
 
@@ -90,13 +89,7 @@ void main() {
   test(
     "should throw UnexpectedError if httpclient return 500",
     () async {
-      when(
-        httpClient.request(
-          url: anyNamed('url'),
-          method: anyNamed('method'),
-          body: anyNamed("body"),
-        ),
-      ).thenThrow(HttpError.serverError);
+      httpError(HttpError.serverError);
 
       final future = systemUniteTest.auth(params);
 
@@ -107,13 +100,7 @@ void main() {
   test(
     "should throw InvalidCredentialsError if httpclient return 401",
     () async {
-      when(
-        httpClient.request(
-          url: anyNamed('url'),
-          method: anyNamed('method'),
-          body: anyNamed("body"),
-        ),
-      ).thenThrow(HttpError.unauthorized);
+      httpError(HttpError.unauthorized);
 
       final future = systemUniteTest.auth(params);
 
@@ -125,22 +112,28 @@ void main() {
     "should return an Account if httpclient return 200",
     () async {
       final accessToken = faker.guid.guid();
-      when(
-        httpClient.request(
-          url: anyNamed('url'),
-          method: anyNamed('method'),
-          body: anyNamed("body"),
-        ),
-      ).thenAnswer(
-        (_) async => {
-          "accessToken": accessToken,
-          "name": faker.person.name(),
-        },
-      );
+
+      httpData({
+        "accessToken": accessToken,
+        "name": faker.person.name(),
+      });
 
       final account = await systemUniteTest.auth(params);
 
       expect(account.token, accessToken);
+    },
+  );
+
+  test(
+    "should throw UnexpectedError if httpclient return 200 with invalid data",
+    () async {
+      httpData({
+        'invalid_key': 'invalid_value',
+      });
+
+      final future = systemUniteTest.auth(params);
+
+      expect(future, throwsA(DomainError.unexpected));
     },
   );
 }

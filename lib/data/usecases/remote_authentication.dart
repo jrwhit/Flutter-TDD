@@ -1,10 +1,9 @@
-import 'package:for_dev/data/models/account_remote_model.dart';
 import 'package:meta/meta.dart';
 
-import '../../domain/usecases/authentication.dart';
+import '../../domain/usecases/usecases.dart';
 import '../../domain/helpers/helpers.dart';
 import '../../domain/entities/entities.dart';
-
+import '../../data/models/models.dart';
 import '../http/http.dart';
 
 class RemoteAuthentication {
@@ -16,7 +15,6 @@ class RemoteAuthentication {
     @required this.url,
   });
 
-  // ignore: missing_return
   Future<AccountEntity> auth (AuthenticationParams params) async {
     final body = RemoteAuthenticationParams.fromAuthenticationParams(params).toJson();
     try{
@@ -27,10 +25,11 @@ class RemoteAuthentication {
         case HttpError.badRequest:
         case HttpError.notFound:
         case HttpError.serverError:
+        case HttpError.invalidData:
           throw DomainError.unexpected;
           break;
         case HttpError.unauthorized:
-          return throw DomainError.invalidCredentials;
+          throw DomainError.invalidCredentials;
           break;
       }
     }
