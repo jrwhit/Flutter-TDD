@@ -1,3 +1,4 @@
+import 'package:for_dev/data/models/account_remote_model.dart';
 import 'package:meta/meta.dart';
 
 import '../../domain/usecases/authentication.dart';
@@ -20,7 +21,7 @@ class RemoteAuthentication {
     final body = RemoteAuthenticationParams.fromAuthenticationParams(params).toJson();
     try{
       final response = await httpClient.request(url: url, method: "post", body: body);
-      return AccountEntity.fromJson(response);
+      return RemoteAccountModel.fromJson(response).toAccountEntity();
     } on HttpError catch(error){
       switch(error){
         case HttpError.badRequest:
