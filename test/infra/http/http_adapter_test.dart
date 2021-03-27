@@ -112,6 +112,18 @@ void main() {
           expect(response, null);
         },
       );
+
+      test(
+        'should call return null if post return 204',
+            () async {
+          mockResponse(204, body: '');
+
+          final response =
+          await systemUniteTest.request(url: url, method: "post");
+
+          expect(response, null);
+        },
+      );
     },
   );
 }
