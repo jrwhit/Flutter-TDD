@@ -1,35 +1,9 @@
-import 'dart:convert';
-
 import 'package:faker/faker.dart';
 import 'package:http/http.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
-import 'package:meta/meta.dart';
 
-import 'package:for_dev/data/http/http_client.dart';
-
-class HttpAdapter implements HttpClient {
-  Map<String, dynamic> body;
-
-  final Client client;
-
-  HttpAdapter(this.client);
-
-  Future<Map<String, dynamic>> request({
-    @required String url,
-    @required String method,
-    Map<String, dynamic> body,
-  }) async {
-    final headers = {
-      'content-type': 'application/json',
-      'accept': 'application/json',
-    };
-    final response = await client.post(url,
-        headers: headers, body: body != null ? jsonEncode(body) : null);
-
-    return response.body.isEmpty ? null : jsonDecode(response.body);
-  }
-}
+import 'package:for_dev/infra/http/http.dart';
 
 class ClientSpy extends Mock implements Client {}
 
@@ -117,6 +91,18 @@ void main() {
         'should call return null if post return 204',
             () async {
           mockResponse(204, body: '');
+
+          final response =
+          await systemUniteTest.request(url: url, method: "post");
+
+          expect(response, null);
+        },
+      );
+
+      test(
+        'should call return null if post return 204 with not data',
+            () async {
+          mockResponse(204);
 
           final response =
           await systemUniteTest.request(url: url, method: "post");
