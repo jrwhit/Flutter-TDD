@@ -19,6 +19,18 @@ void main() {
     url = faker.internet.httpUrl();
   });
 
+  group("share", (){
+
+    test(
+      'should throw serverError if invalid method is provided',
+          () async {
+        final future = systemUniteTest.request(url: url, method: "invalid_method");
+
+        expect(future, throwsA(HttpError.serverError));
+      },
+    );
+  });
+
   group(
     "post",
     () {

@@ -16,12 +16,16 @@ class HttpAdapter implements HttpClient {
     @required String method,
     Map<String, dynamic> body,
   }) async {
+    var response = Response('', 500);
     final headers = {
       'content-type': 'application/json',
       'accept': 'application/json',
     };
-    final response = await client.post(url,
-        headers: headers, body: body != null ? jsonEncode(body) : null);
+
+    if (method == "post") {
+      response = await client.post(url,
+          headers: headers, body: body != null ? jsonEncode(body) : null);
+    }
 
     return _handleResponse(response);
   }
