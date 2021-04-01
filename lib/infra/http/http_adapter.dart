@@ -22,9 +22,13 @@ class HttpAdapter implements HttpClient {
       'accept': 'application/json',
     };
 
-    if (method == "post") {
-      response = await client.post(url,
-          headers: headers, body: body != null ? jsonEncode(body) : null);
+    try{
+      if (method == "post") {
+        response = await client.post(url,
+            headers: headers, body: body != null ? jsonEncode(body) : null);
+      }
+    }catch (error){
+      throw HttpError.serverError;
     }
 
     return _handleResponse(response);
