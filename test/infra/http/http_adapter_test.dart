@@ -90,11 +90,11 @@ void main() {
 
       test(
         'should call return null if post return 204',
-            () async {
+        () async {
           mockResponse(204, body: '');
 
           final response =
-          await systemUniteTest.request(url: url, method: "post");
+              await systemUniteTest.request(url: url, method: "post");
 
           expect(response, null);
         },
@@ -102,11 +102,11 @@ void main() {
 
       test(
         'should call return null if post return 204 with not data',
-            () async {
+        () async {
           mockResponse(204);
 
           final response =
-          await systemUniteTest.request(url: url, method: "post");
+              await systemUniteTest.request(url: url, method: "post");
 
           expect(response, null);
         },
@@ -114,11 +114,10 @@ void main() {
 
       test(
         'should call return badRequest if post return 400',
-            () async {
+        () async {
           mockResponse(400);
 
-          final future =
-           systemUniteTest.request(url: url, method: "post");
+          final future = systemUniteTest.request(url: url, method: "post");
 
           expect(future, throwsA(HttpError.badRequest));
         },
@@ -126,23 +125,54 @@ void main() {
 
       test(
         'should call return badRequest if post return 400 without data',
-            () async {
+        () async {
           mockResponse(400, body: '');
 
-          final future =
-          systemUniteTest.request(url: url, method: "post");
+          final future = systemUniteTest.request(url: url, method: "post");
 
           expect(future, throwsA(HttpError.badRequest));
         },
       );
 
       test(
-        'should call return Server Error if post return 500',
+        'should call return unauthorized if post return 401',
+        () async {
+          mockResponse(401);
+
+          final future = systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.unauthorized));
+        },
+      );
+
+      test(
+        'should call return forbidden if post return 403',
+        () async {
+          mockResponse(403);
+
+          final future = systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.forbidden));
+        },
+      );
+
+      test(
+        'should call return Not Found if post return 404',
             () async {
+          mockResponse(404);
+
+          final future = systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.notFound));
+        },
+      );
+
+      test(
+        'should call return Server Error if post return 500',
+        () async {
           mockResponse(500);
 
-          final future =
-          systemUniteTest.request(url: url, method: "post");
+          final future = systemUniteTest.request(url: url, method: "post");
 
           expect(future, throwsA(HttpError.serverError));
         },
