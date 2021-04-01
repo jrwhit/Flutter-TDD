@@ -135,6 +135,18 @@ void main() {
           expect(future, throwsA(HttpError.badRequest));
         },
       );
+
+      test(
+        'should call return Server Error if post return 500',
+            () async {
+          mockResponse(500);
+
+          final future =
+          systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.serverError));
+        },
+      );
     },
   );
 }
