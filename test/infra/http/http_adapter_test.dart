@@ -123,6 +123,18 @@ void main() {
           expect(future, throwsA(HttpError.badRequest));
         },
       );
+
+      test(
+        'should call return badRequest if post return 400 without data',
+            () async {
+          mockResponse(400, body: '');
+
+          final future =
+          systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.badRequest));
+        },
+      );
     },
   );
 }
