@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'package:for_dev/infra/http/http.dart';
+import 'package:for_dev/data/http/http.dart';
 
 class ClientSpy extends Mock implements Client {}
 
@@ -108,6 +109,18 @@ void main() {
           await systemUniteTest.request(url: url, method: "post");
 
           expect(response, null);
+        },
+      );
+
+      test(
+        'should call return badRequest if post return 400',
+            () async {
+          mockResponse(400);
+
+          final future =
+           systemUniteTest.request(url: url, method: "post");
+
+          expect(future, throwsA(HttpError.badRequest));
         },
       );
     },
